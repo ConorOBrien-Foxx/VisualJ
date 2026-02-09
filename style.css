@@ -5,12 +5,18 @@
     --cell-division-color: #115973;
     --accent-color: #22d6ff;
     --text-color: #acf0ff;
+    
+    --data-gap: 5px;
+    --ui-gap: 12px; /* just large enough to not let scrollbar obscure table margin */
 }
 /* TODO: Light mode */
 
 html {
     background-color: var(--background-color);
     color: var(--text-color);
+}
+body {
+    margin: 0;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -28,7 +34,7 @@ table {
 }
 table td, table th {
     border: 1px solid;
-    padding: 5px;
+    padding: var(--data-gap);
 }
 
 html, button {
@@ -43,7 +49,7 @@ input, button {
     background-color: var(--element-background-color);
     color: var(--text-color);
     border: 1px solid;
-    padding: 8px;
+    padding: var(--ui-gap);
     font-size: 16px;
 }
 button {
@@ -56,38 +62,47 @@ button:hover {
 #output {
     display: flex;
     flex-direction: column;
-    gap: 5px;
-    margin: 5px 0;
+    gap: var(--data-gap);
+    margin: var(--data-gap) 0;
 }
 .computation {
     border: 1px solid;
     border-color: var(--cell-division-color);
-    border-radius: 8px;
+    border-radius: var(--ui-gap);
 }
 .input-row {
-    padding: 8px;
-    padding-left: calc(8px + 3ch);
+    padding: var(--ui-gap);
+    padding-left: calc(var(--ui-gap) + 3ch);
     border-bottom: 1px solid;
     border-color: var(--cell-division-color);
 }
 .output-row {
-    padding: 8px;
+    padding: var(--ui-gap);
     display: flex;
-    /*flex-direction: column;
-    align-items: flex-start;
-    */
-    /* word-break: break-all; */
+    word-break: break-all;
     white-space: pre-wrap;
-    gap: 16px;
+    flex-wrap: wrap;
+    gap: calc(2 * var(--data-gap));
+    overflow-y: auto;
+}
+td {
+    white-space: pre;
+    /* word-break: keep-all; */
 }
 
+main {
+    position: relative;
+    margin: 8px;
+}
 #input-field {
+    top: 0;
+    position: sticky;
     display: grid;
     grid-template-columns: 1fr auto;
     grid-template-rows: 1fr;
     grid-column-gap: 0px;
     grid-row-gap: 0px;
-    gap: 5px;
+    gap: var(--data-gap);
     align-items: stretch;
 }
 #input {

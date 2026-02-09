@@ -39,6 +39,7 @@ wss.on("connection", function (ws) {
         }
         else {
             console.error("J errored with code:", code);
+            ws.send(JSON.stringify({ error: code }));
         }
     });
 

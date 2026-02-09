@@ -23,10 +23,13 @@ const decode = arr => {
 const htmlEncode = ({ shape, data }) => {
     // console.log("HM:",{shape,data});
     if(shape === null) {
-        return [ data === EmptyResult ? "empty:(" : data ];
+        return [ data === EmptyResult ? "" : data ];
     }
     console.log("Encode table:", shape, data);
-    if(shape.length === 1) {
+    if(shape.length === 0) {
+        return htmlEncode({ shape: [1], data });
+    }
+    else if(shape.length === 1) {
         let table = document.createElement("table");
         let tr = document.createElement("tr");
         data.forEach(cell => {
@@ -40,7 +43,7 @@ const htmlEncode = ({ shape, data }) => {
     }
     else if(shape.length === 2) {
         let table = document.createElement("table");
-        let [ rowCount, colCount ] = shape;
+        let [ colCount, rowCount ] = shape;
         for(let i = 0; i < rowCount * colCount; i += rowCount) {
             let tr = document.createElement("tr");
             data.slice(i, i + rowCount).forEach(cell => {
@@ -55,7 +58,7 @@ const htmlEncode = ({ shape, data }) => {
     }
     else if(shape.length === 3) {
         let result = [];
-        let [ tableCount, rowCount, colCount ] = shape;
+        let [ tableCount, colCount, rowCount ] = shape;
         console.log(tableCount, rowCount, colCount);
         for(let i = 0; i < tableCount * rowCount * colCount; i += rowCount * colCount) {
             let table = document.createElement("table");
@@ -87,6 +90,21 @@ window.addEventListener("load", function () {
     const wsUri = "ws://localhost:8081";
     const websocket = new WebSocket(wsUri);
     
+    const showComputation = (input, outputs) => {
+        let inRow = document.createElement("div");
+        inRow.textContent = inputElement.value; 
+        inRow.classList.add("input-row");
+        
+        let outRow = document.createElement("div");
+        outRow.classList.add("output-row");
+        outRow.append(...outputs);
+        
+        let container = document.createElement("div");
+        container.classList.add("computation");
+        container.append(inRow, outRow);
+        outputElement.prepend(container);
+    };
+    
     const parseLine = line => {
         if(!line) return;
         console.log("LINE:", line);
@@ -94,17 +112,20 @@ window.addEventListener("load", function () {
         let decoded = decode(data);
         console.log("Decoded:", decoded);
         let result = htmlEncode(decoded);
-        let inRow = document.createElement("div");
-        inRow.textContent = inputElement.value; // TODO: use the correct source
-        inRow.classList.add("input-row");
         
-        let outRow = document.createElement("div");
-        outRow.classList.add("output-row");
-        outRow.append(...result);
-        let container = document.createElement("div");
-        container.classList.add("computation");
-        container.append(inRow, outRow);
-        outputElement.prepend(container);
+        showComputation(
+            inputElement.value, // TODO: use the correct source (somehow associate inputs with outputs, by ID perhaps)
+            result
+        );
+        
+        /*
+        // TODO: make this actually work
+        // figure out what scroll-margin-top: 48px; attaches to
+        // figure out the actual amount
+        container.scrollIntoView({
+            // behavior: "smooth",
+        });
+        */
     };
     
     const submit = () => {
@@ -129,10 +150,18 @@ window.addEventListener("load", function () {
     websocket.addEventListener("message", (e) => {
         console.log("MESSAGE RECEIVED:", e);
         // TODO: collect results until newline, to handle long chunks(?)
-        let { output } = JSON.parse(e.data);
-        let lines = output.split(/\r?\n/g);
-        console.log(lines);
-        lines.forEach(parseLine);
+        let { output, error } = JSON.parse(e.data);
+        if(error) {
+            showComputation(
+                inputElement.value, // TODO: use the correct source (somehow associate inputs with outputs, by ID perhaps)
+                `The bridge encountered an error with code ${error}. You should not be able to see this.`
+            );
+        }
+        else {
+            let lines = output.split(/\r?\n/g);
+            console.log(lines);
+            lines.forEach(parseLine);
+        }
     });
     
     websocket.addEventListener("error", (e) => {
