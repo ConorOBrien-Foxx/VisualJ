@@ -1,0 +1,31 @@
+{
+  "name": "visualj",
+  "version": "0.0.1",
+  "description": "A visual interface to the J programming language",
+  "keywords": [
+    "J",
+    "interface",
+    "repl"
+  ],
+  "homepage": "https://github.com/ConorOBrien-Foxx/VisualJ#readme",
+  "bugs": {
+    "url": "https://github.com/ConorOBrien-Foxx/VisualJ/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ConorOBrien-Foxx/VisualJ.git"
+  },
+  "license": "GPL-3.0-only",
+  "author": "Conor O'Brien",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "finalhandler": "^2.1.1",
+    "serve-static": "^2.2.1",
+    "ws": "^8.19.0"
+  }
+}

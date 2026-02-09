@@ -1,0 +1,99 @@
+:root {
+    --background-color: #071013;
+    --element-background-color: #0c2730;
+    --element-background-color-light: #154353;
+    --cell-division-color: #115973;
+    --accent-color: #22d6ff;
+    --text-color: #acf0ff;
+}
+/* TODO: Light mode */
+
+html {
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Abril Fatface", serif;
+    margin: 0;
+    color: var(--accent-color);
+}
+
+header {
+    font-size: 30px;
+}
+
+table {
+    border-collapse: collapse;
+}
+table td, table th {
+    border: 1px solid;
+    padding: 5px;
+}
+
+html, button {
+    font-family: "SN Pro", sans-serif;
+}
+
+input, code, pre, #output {
+    font-family: "Google Sans Code", monospace;
+}
+
+input, button {
+    background-color: var(--element-background-color);
+    color: var(--text-color);
+    border: 1px solid;
+    padding: 8px;
+    font-size: 16px;
+}
+button {
+    cursor: pointer;
+}
+button:hover {
+    background-color: var(--element-background-color-light);
+}
+
+#output {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    margin: 5px 0;
+}
+.computation {
+    border: 1px solid;
+    border-color: var(--cell-division-color);
+    border-radius: 8px;
+}
+.input-row {
+    padding: 8px;
+    padding-left: calc(8px + 3ch);
+    border-bottom: 1px solid;
+    border-color: var(--cell-division-color);
+}
+.output-row {
+    padding: 8px;
+    display: flex;
+    /*flex-direction: column;
+    align-items: flex-start;
+    */
+    /* word-break: break-all; */
+    white-space: pre-wrap;
+    gap: 16px;
+}
+
+#input-field {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: 1fr;
+    grid-column-gap: 0px;
+    grid-row-gap: 0px;
+    gap: 5px;
+    align-items: stretch;
+}
+#input {
+    grid-area: 1 / 1 / 2 / 2;
+}
+#submit {
+    grid-area: 1 / 2 / 2 / 3;
+    width: 10ch;
+}
