@@ -9,18 +9,35 @@ import { promises as fs } from "fs";
 const Config = {
     WebSocketServerPort: 8081,
     WebServerPort: 8080,
+    InitScript: null,
+    _InitScriptCallbacks: [],
+    InitScriptRead() {
+        return new Promise((resolve, reject) => {
+            if(this.InitScript) {
+                resolve(this.InitScript);
+            }
+            else {
+                this._InitScriptCallbacks.push({ resolve, reject });
+            }
+        });
+    },
 };
+
+fs.readFile("init.ijs").then(data => {
+    Config.InitScript = data.toString();
+    Config._InitScriptCallbacks.splice(0).forEach(({ resolve }) => resolve(Config.InitScript));
+});
 
 const wss = new WebSocketServer({ port: Config.WebSocketServerPort });
 
 wss.on("listening", function () {
     console.log(`WebSocketServer is listening on port ${Config.WebSocketServerPort}`);
 });
-wss.on("connection", function (ws) {
+wss.on("connection", async function (ws) {
+    let initScript = await Config.InitScriptRead();
     console.log("WebSocket connection received");
     
-    // const child = spawn("jconsole");
-    const child = spawn("jconsole", [], {shell:true});
+    const child = spawn("jconsole");
     
     child.stdout.on("data", (data) => {
         let message = data.toString();
@@ -39,12 +56,14 @@ wss.on("connection", function (ws) {
         }
         else {
             console.error("J errored with code:", code);
-            ws.send(JSON.stringify({ error: code }));
+            ws.send(JSON.stringify({ errorCode: code }));
         }
     });
 
     child.stderr.on("data", (data) => {
-        console.error(`Error: ${data.toString()}`);
+        let message = data.toString();
+        console.error(`Error: ${message}`);
+        ws.send(JSON.stringify({ errorMessage: message }));
     });
 
 
@@ -52,15 +71,17 @@ wss.on("connection", function (ws) {
         console.log(`Child process exited with code ${code}`);
     });
     
-    child.stdin.write("load 'bridge.ijs'\n");
+    child.stdin.write(Config.InitScript);
     
     ws.on("error", console.error);
 
     ws.on("message", function (data) {
         let msg = JSON.parse(data.toString());
-        let jInstruction = `parse 0 : 0\n${msg.command}\n)\n`;
-        console.log(msg, jInstruction);
-        child.stdin.write(jInstruction);
+        fs.writeFile("tmp.in", msg.command).then(() => {
+            let jInstruction = `parse 1!:1 <'tmp.in'\n`;
+            console.log(msg, jInstruction);
+            child.stdin.write(jInstruction);
+        });
     });
     
     ws.on("close", function (data) {

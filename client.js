@@ -150,11 +150,17 @@ window.addEventListener("load", function () {
     websocket.addEventListener("message", (e) => {
         console.log("MESSAGE RECEIVED:", e);
         // TODO: collect results until newline, to handle long chunks(?)
-        let { output, error } = JSON.parse(e.data);
-        if(error) {
+        let { output, errorMessage, errorCode } = JSON.parse(e.data);
+        if(errorCode) {
             showComputation(
                 inputElement.value, // TODO: use the correct source (somehow associate inputs with outputs, by ID perhaps)
-                `The bridge encountered an error with code ${error}. You should not be able to see this.`
+                `The bridge encountered an error with code ${errorCode}. You should not be able to see this.`
+            );
+        }
+        else if(errorMessage) {
+            showComputation(
+                inputElement.value, // TODO: use the correct source (somehow associate inputs with outputs, by ID perhaps)
+                errorMessage,
             );
         }
         else {
